@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    CEditText cEditText = (CEditText) findViewById(R.id.edt);
+    final CEditText cEditText = (CEditText) findViewById(R.id.edt);
     cEditText.displayDrawable(true, true, true, true);
     cEditText.setOnDrawableClickListener(new CEditText.OnClickDrawableListener() {
       @Override
@@ -21,19 +21,10 @@ public class MainActivity extends AppCompatActivity {
       }
 
       @Override
-      public void onClickTopDrawable() {
-        Toast.makeText(MainActivity.this, "TOP", Toast.LENGTH_SHORT).show();
-      }
-
-      @Override
       public void onClickRightDrawable() {
-        Toast.makeText(MainActivity.this, "RIGHT", Toast.LENGTH_SHORT).show();
+        cEditText.setText("");
       }
 
-      @Override
-      public void onClickBottomDrawable() {
-        Toast.makeText(MainActivity.this, "BOTTOM", Toast.LENGTH_SHORT).show();
-      }
     });
   }
 }

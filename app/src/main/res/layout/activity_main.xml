@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:custom="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:id="@+id/activity_main"
                 android:layout_width="match_parent"
@@ -10,8 +11,9 @@
     android:id="@+id/edt"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:drawableBottom="@mipmap/ic_launcher"
-    android:drawableLeft="@drawable/ic_clear_text"
-    android:drawableRight="@drawable/ic_search"
-    android:drawableTop="@mipmap/ic_launcher"/>
+    android:drawableLeft="@drawable/ic_search"
+    android:drawableRight="@drawable/ic_clear_text"
+    custom:drawableLeftSize="10dp"
+    custom:drawableRightSize="10dp"/>
+
 </RelativeLayout>

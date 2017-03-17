@@ -4,4 +4,9 @@
     <attr name="typeFaceFont" format="string"/>
     <attr name="typeFaceStyle" format="string"/>
   </declare-styleable>
+
+  <declare-styleable name="DrawableView">
+    <attr name="drawableLeftSize" format="dimension"/>
+    <attr name="drawableRightSize" format="dimension"/>
+  </declare-styleable>
 </resources>

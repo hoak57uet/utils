@@ -23,10 +23,10 @@ import com.wingmedia.utils.common.Typefaces;
  */
 public class CEditText extends EditText implements View.OnFocusChangeListener {
   private Drawable[] drawables;
-  int actionX, actionY;
-  private static final int sizeDrawable = 20;
+  private static int sizeDrawableDefault = 20;
+  private static int sizeDrawableLeft;
+  private static int sizeDrawableRight;
   OnClickDrawableListener drawableClickListener;
-  int extraTapArea = (int) (13 * getResources().getDisplayMetrics().density + 0.5);
 
   public CEditText(Context context) {
     super(context);
@@ -37,7 +37,7 @@ public class CEditText extends EditText implements View.OnFocusChangeListener {
   public CEditText(Context context, AttributeSet attrs) {
     super(context, attrs);
     initFont(attrs);
-    initAttrs(attrs);
+    initAttrs(context, attrs);
     setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
     setOnFocusChangeListener(this);
   }
@@ -45,26 +45,28 @@ public class CEditText extends EditText implements View.OnFocusChangeListener {
   public CEditText(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     initFont(attrs);
-    initAttrs(attrs);
+    initAttrs(context, attrs);
     setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
     setOnFocusChangeListener(this);
   }
 
-  private void initAttrs(AttributeSet attrs) {
+  private void initAttrs(Context context, AttributeSet attrs) {
+    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DrawableView);
+    float sizeLeftDp = a.getDimension(R.styleable.DrawableView_drawableLeftSize, sizeDrawableDefault);
+    sizeDrawableLeft = DeviceUtils.dpToPx(context, sizeLeftDp);
+    float sizeRightDp = a.getDimensionPixelOffset(R.styleable.DrawableView_drawableRightSize, sizeDrawableDefault);
+    sizeDrawableRight = DeviceUtils.dpToPx(context, sizeRightDp);
     drawables = getCompoundDrawables();
     adjustDrawableSize();
   }
 
   public void adjustDrawableSize() {
-    int drawableSize = DeviceUtils
-        .dpToPx(getContext(), sizeDrawable);
-    for (int i = 0; i < drawables.length; i++) {
-      if (drawables[i] != null) {
-        drawables[i] = new BitmapDrawable(getResources(),
-            Bitmap.createScaledBitmap(((BitmapDrawable) drawables[i]).getBitmap(),
-                drawableSize, drawableSize, true));
-      }
-    }
+    drawables[0] = new BitmapDrawable(getResources(),
+        Bitmap.createScaledBitmap(((BitmapDrawable) drawables[0]).getBitmap(),
+            sizeDrawableLeft, sizeDrawableLeft, true));
+    drawables[2] = new BitmapDrawable(getResources(),
+        Bitmap.createScaledBitmap(((BitmapDrawable) drawables[2]).getBitmap(),
+            sizeDrawableRight, sizeDrawableRight, true));
   }
 
   public void setCompoundDrawables(Drawable[] drawables) {
@@ -120,112 +122,25 @@ public class CEditText extends EditText implements View.OnFocusChangeListener {
 
   @Override
   public boolean onTouchEvent(MotionEvent event) {
-    Rect bounds;
+    final int DRAWABLE_LEFT = 0;
+    final int DRAWABLE_RIGHT = 2;
+
     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-      actionX = (int) event.getX();
-      actionY = (int) event.getY();
-      if (drawables[3] != null
-          && drawables[3].getBounds().contains(actionX, actionY)) {
+      if (event.getRawX() >= (getRight() - getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+        // your action here
         if (drawableClickListener != null)
-          drawableClickListener.onClickBottomDrawable();
-        return super.onTouchEvent(event);
+          drawableClickListener.onClickRightDrawable();
+        return true;
       }
-
-      if (drawables[1] != null
-          && drawables[1].getBounds().contains(actionX, actionY)) {
-        if (drawableClickListener != null)
-          drawableClickListener.onClickTopDrawable();
-        return super.onTouchEvent(event);
-      }
-
-      // this works for left since container shares 0,0 origin with bounds
-      if (drawables[0] != null) {
-        bounds = null;
-        bounds = drawables[0].getBounds();
-
-        int x, y;
-
-        x = actionX;
-        y = actionY;
-
-        if (!bounds.contains(actionX, actionY)) {
-          /** Gives the +20 area for tapping. */
-          x = (int) (actionX - extraTapArea);
-          y = (int) (actionY - extraTapArea);
-
-          if (x <= 0)
-            x = actionX;
-          if (y <= 0)
-            y = actionY;
-
-          /** Creates square from the smallest value */
-          if (x < y) {
-            y = x;
-          }
-        }
-
-        if (bounds.contains(x, y) && drawableClickListener != null) {
-          drawableClickListener.onClickLeftDrawable();
-          event.setAction(MotionEvent.ACTION_CANCEL);
-          return false;
-
-        }
-      }
-
-      if (drawables[2] != null) {
-
-        bounds = null;
-        bounds = drawables[2].getBounds();
-
-        int x, y;
-        int extraTapArea = 13;
-
-        /**
-         * IF USER CLICKS JUST OUT SIDE THE RECTANGLE OF THE DRAWABLE
-         * THAN ADD X AND SUBTRACT THE Y WITH SOME VALUE SO THAT AFTER
-         * CALCULATING X AND Y CO-ORDINATE LIES INTO THE DRAWBABLE
-         * BOUND. - this process help to increase the tappable area of
-         * the rectangle.
-         */
-        x = (int) (actionX + extraTapArea);
-        y = (int) (actionY - extraTapArea);
-
-        /**Since this is right drawable subtract the value of x from the width
-         * of view. so that width - tappedarea will result in x co-ordinate in drawable bound.
-         */
-        x = getWidth() - x;
-
-                 /*x can be negative if user taps at x co-ordinate just near the width.
-                 * e.g views width = 300 and user taps 290. Then as per previous calculation
-                 * 290 + 13 = 303. So subtract X from getWidth() will result in negative value.
-                 * So to avoid this add the value previous added when x goes negative.
-                 */
-
-        if (x <= 0) {
-          x += extraTapArea;
-        }
-
-                 /* If result after calculating for extra tappable area is negative.
-                 * assign the original value so that after subtracting
-                 * extratapping area value doesn't go into negative value.
-                 */
-
-        if (y <= 0)
-          y = actionY;
-
-        /**If drawble bounds contains the x and y points then move ahead.*/
-        if (bounds.contains(x, y) && drawableClickListener != null) {
-          if (drawableClickListener != null)
-            drawableClickListener.onClickRightDrawable();
-          event.setAction(MotionEvent.ACTION_CANCEL);
-          return false;
-        }
-        return super.onTouchEvent(event);
-      }
-
+    }
+    if (event.getRawX() <= (getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+      if (drawableClickListener != null)
+        drawableClickListener.onClickLeftDrawable();
+      return true;
     }
     return super.onTouchEvent(event);
   }
+
 
   public void setupSimpleText() {
     setOnFocusChangeListener(this);
@@ -281,11 +196,7 @@ public class CEditText extends EditText implements View.OnFocusChangeListener {
   public interface OnClickDrawableListener {
     void onClickLeftDrawable();
 
-    void onClickTopDrawable();
-
     void onClickRightDrawable();
-
-    void onClickBottomDrawable();
   }
 
   public void setOnDrawableClickListener(OnClickDrawableListener listener) {

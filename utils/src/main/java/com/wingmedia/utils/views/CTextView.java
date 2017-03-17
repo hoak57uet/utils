@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import com.wingmdia.viewutils.R;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 public class CTextView extends TextView {
   private Drawable[] drawables;
   private static final int sizeDrawable = 20;
+  private OnClickDrawableListener drawableClickListener;
 
   public CTextView(Context context) {
     super(context);
@@ -56,6 +58,37 @@ public class CTextView extends TextView {
     }
     setCompoundDrawablesWithIntrinsicBounds(drawables[0], drawables[1],
         drawables[2], drawables[3]);
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    final int DRAWABLE_LEFT = 0;
+    final int DRAWABLE_RIGHT = 2;
+
+    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+      if (event.getRawX() >= (getRight() - getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+        // your action here
+        if (drawableClickListener != null)
+          drawableClickListener.onClickRightDrawable();
+        return true;
+      }
+    }
+    if (event.getRawX() <= (getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+      if (drawableClickListener != null)
+        drawableClickListener.onClickLeftDrawable();
+      return true;
+    }
+    return false;
+  }
+
+  public interface OnClickDrawableListener {
+    void onClickLeftDrawable();
+
+    void onClickRightDrawable();
+  }
+
+  public void setOnDrawableClickListener(OnClickDrawableListener listener) {
+    this.drawableClickListener = listener;
   }
 
   /**
