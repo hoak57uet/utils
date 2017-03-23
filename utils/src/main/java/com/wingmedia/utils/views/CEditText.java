@@ -19,7 +19,7 @@ import com.wingmedia.utils.common.Typefaces;
 
 /**
  * Custom Text view
- * Created by p on 5/9/2016.
+ * Created by Alan's on 5/9/2016.
  */
 public class CEditText extends EditText implements View.OnFocusChangeListener {
   private Drawable[] drawables;

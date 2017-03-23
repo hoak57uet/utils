@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Custom Text view
- * Created by neo on 3/24/2016.
+ * Created by Alan's on 3/24/2016.
  */
 public class CTextView extends TextView {
   private Drawable[] drawables;
@@ -60,6 +60,16 @@ public class CTextView extends TextView {
         drawables[2], drawables[3]);
   }
 
+  public void setCompoundDrawables(Drawable[] drawables) {
+    try {
+      setCompoundDrawablesWithIntrinsicBounds(drawables[0], drawables[1],
+          drawables[2], drawables[3]);
+    } catch (NullPointerException e) {
+      setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+    }
+
+  }
+
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     final int DRAWABLE_LEFT = 0;
@@ -98,7 +108,6 @@ public class CTextView extends TextView {
     if (attrs == null) {
       return;
     }
-
     TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CTextView);
     String font = a.getString(R.styleable.CTextView_typeFaceFont);
     String style = a.getString(R.styleable.CTextView_typeFaceStyle);
@@ -112,4 +121,17 @@ public class CTextView extends TextView {
     a.recycle();
   }
 
+  public void displayDrawable(int position, boolean isShow) {
+    Drawable[] currents = getCompoundDrawables();
+    currents[position] = isShow ? currents[position] = drawables[position] : null;
+    setCompoundDrawables(currents);
+  }
+
+  public void displayDrawable(boolean left, boolean top, boolean right, boolean bottom) {
+    Drawable l = left ? drawables[0] : null;
+    Drawable t = top ? drawables[1] : null;
+    Drawable r = top ? drawables[2] : null;
+    Drawable b = top ? drawables[3] : null;
+    setCompoundDrawablesWithIntrinsicBounds(l, t, r, b);
+  }
 }
